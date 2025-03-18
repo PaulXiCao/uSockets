@@ -25,3 +25,8 @@ target_sources(
 
 target_include_directories(uSockets PUBLIC src/)
 target_compile_definitions(uSockets PRIVATE LIBUS_NO_SSL)
+
+option(WITH_EXAMPLES "with examples" OFF)
+if(WITH_EXAMPLES)
+  add_subdirectory(examples)
+endif()
