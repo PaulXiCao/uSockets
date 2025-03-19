@@ -1,12 +1,13 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 
 project(uSocketsProject)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-add_library(uSocketsC OBJECT)
-add_library(uSockets STATIC)
+option(WITH_ASIO "Enable ASIO event-loop" OFF)
+
+add_library(uSocketsC)
 
 target_sources(
   uSocketsC
@@ -26,8 +27,20 @@ target_sources(
 
 target_include_directories(uSocketsC PUBLIC src/)
 target_compile_definitions(uSocketsC PRIVATE LIBUS_NO_SSL)
-
+add_library(uSockets)
 target_sources(uSockets PRIVATE $<TARGET_OBJECTS:uSocketsC>)
+
+if(WITH_ASIO)
+  add_library(uSocketsASIO)
+
+  target_compile_definitions(uSocketsASIO PUBLIC LIBUS_USE_ASIO)
+  target_link_libraries(uSocketsASIO PUBLIC pthread stdc++)
+
+  target_include_directories(uSocketsASIO PRIVATE src/)
+  target_compile_features(uSocketsASIO PRIVATE cxx_std_14)
+  target_sources(uSocketsASIO PRIVATE src/eventing/asio.cpp)
+  target_link_libraries(uSockets PRIVATE $<TARGET_OBJECTS:uSocketsASIO>)
+endif()
 
 option(WITH_EXAMPLES "with examples" OFF)
 if(WITH_EXAMPLES)
