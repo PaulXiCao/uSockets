@@ -5,7 +5,13 @@ project(uSocketsProject)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-option(WITH_ASIO "Enable ASIO event-loop" OFF)
+# By default we use LTO, but Windows does not support it
+option(WITH_LTO "Link-time optimization" ON)
+option(WITH_ASIO "ASIO event-loop" OFF)
+
+if(WITH_LTO)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
 
 add_library(uSocketsC)
 
