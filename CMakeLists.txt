@@ -9,10 +9,6 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 option(WITH_LTO "Link-time optimization" ON)
 option(WITH_ASIO "ASIO event-loop" OFF)
 
-if(WITH_LTO)
-  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-endif()
-
 add_library(uSocketsC)
 
 target_sources(
@@ -33,6 +29,10 @@ target_sources(
 
 target_include_directories(uSocketsC PUBLIC src/)
 target_compile_definitions(uSocketsC PRIVATE LIBUS_NO_SSL)
+if(WITH_LTO)
+  set_target_properties(uSocketsC PROPERTIES INTERPROCEDURAL_OPTIMIZATION true)
+endif()
+
 add_library(uSockets)
 target_sources(uSockets PRIVATE $<TARGET_OBJECTS:uSocketsC>)
 
@@ -45,6 +45,11 @@ if(WITH_ASIO)
   target_include_directories(uSocketsASIO PRIVATE src/)
   target_compile_features(uSocketsASIO PRIVATE cxx_std_14)
   target_sources(uSocketsASIO PRIVATE src/eventing/asio.cpp)
+  if(WITH_LTO)
+    set_target_properties(uSocketsASIO PROPERTIES INTERPROCEDURAL_OPTIMIZATION
+                                                  true)
+  endif()
+
   target_link_libraries(uSockets PRIVATE $<TARGET_OBJECTS:uSocketsASIO>)
 endif()
 
