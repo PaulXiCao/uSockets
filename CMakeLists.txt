@@ -9,6 +9,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 option(WITH_LTO "Link-time optimization" ON)
 option(WITH_ASIO "ASIO event-loop" OFF)
 
+option(WITH_BORINGSSL "BoringSSL support" ON)
+
 add_library(uSocketsC)
 
 target_sources(
@@ -51,6 +53,11 @@ if(WITH_ASIO)
   endif()
 
   target_link_libraries(uSockets PRIVATE $<TARGET_OBJECTS:uSocketsASIO>)
+endif()
+
+if(WITH_BORINGSSL)
+  add_subdirectory(boringssl)
+  target_link_libraries(uSockets PRIVATE ssl crypto)
 endif()
 
 option(WITH_EXAMPLES "with examples" OFF)
