@@ -11,6 +11,14 @@ option(WITH_ASIO "ASIO event-loop" OFF)
 
 option(WITH_BORINGSSL "BoringSSL support" ON)
 
+if(NOT WITH_BORINGSSL)
+  option(WITH_OPENSSL "OpenSSL support" ON)
+else()
+  set(WITH_OPENSSL
+      OFF
+      CACHE BOOL "OpenSSL support (only available when BoringSSL is OFF)" FORCE)
+endif()
+
 add_library(uSocketsC)
 
 target_sources(
@@ -61,9 +69,13 @@ if(WITH_BORINGSSL)
   set(THREADS_PREFER_PTHREAD_FLAG TRUE)
   find_package(Threads REQUIRED)
 
-  target_compile_definitions(uSocketsC PRIVATE LIBUS_USE_OPENSSL)
   target_include_directories(uSocketsC PRIVATE boringssl/include/)
+  target_compile_definitions(uSocketsC PRIVATE LIBUS_USE_OPENSSL)
   target_link_libraries(uSockets PRIVATE ssl crypto stdc++ Threads::Threads)
+elseif(WITH_OPENSSL)
+  find_package(OpenSSL REQUIRED)
+  target_compile_definitions(uSocketsC PRIVATE LIBUS_USE_OPENSSL)
+  target_link_libraries(uSockets PRIVATE OpenSSL::SSL OpenSSL::Crypto stdc++)
 else()
   target_compile_definitions(uSocketsC PRIVATE LIBUS_NO_SSL)
 endif()
