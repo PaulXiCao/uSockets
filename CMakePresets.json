@@ -9,6 +9,7 @@
                 "WITH_ASIO": "OFF",
                 "WITH_BORINGSSL": "ON",
                 "WITH_OPENSSL": "OFF",
+                "WITH_WOLFSSL": "OFF",
                 "WITH_LTO": "OFF",
                 "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=mold",
                 "CMAKE_SHARED_LINKER_FLAGS": "-fuse-ld=mold",
