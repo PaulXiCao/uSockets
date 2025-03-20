@@ -30,7 +30,6 @@ target_sources(
           src/io_uring/io_socket.c)
 
 target_include_directories(uSocketsC PUBLIC src/)
-target_compile_definitions(uSocketsC PRIVATE LIBUS_NO_SSL)
 if(WITH_LTO)
   set_target_properties(uSocketsC PROPERTIES INTERPROCEDURAL_OPTIMIZATION true)
 endif()
@@ -57,7 +56,16 @@ endif()
 
 if(WITH_BORINGSSL)
   add_subdirectory(boringssl)
-  target_link_libraries(uSockets PRIVATE ssl crypto)
+
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+  find_package(Threads REQUIRED)
+
+  target_compile_definitions(uSocketsC PRIVATE LIBUS_USE_OPENSSL)
+  target_include_directories(uSocketsC PRIVATE boringssl/include/)
+  target_link_libraries(uSockets PRIVATE ssl crypto stdc++ Threads::Threads)
+else()
+  target_compile_definitions(uSocketsC PRIVATE LIBUS_NO_SSL)
 endif()
 
 option(WITH_EXAMPLES "with examples" OFF)
